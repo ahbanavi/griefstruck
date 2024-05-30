@@ -2,7 +2,7 @@ import logging
 import os
 import re
 
-from telegram import Update, constants
+from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
 
 logging.basicConfig(
@@ -12,7 +12,7 @@ logging.basicConfig(
 )
 
 
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def replace_caption(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message_text = update.channel_post.caption
     if not message_text:
         logging.warning("No caption found in the message")
@@ -39,10 +39,16 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 if __name__ == "__main__":
     application = ApplicationBuilder().token(os.getenv("TG_BOT_TOKEN")).build()
-    echo_handler = MessageHandler(
-        filters.AUDIO & filters.ChatType.CHANNEL & (~filters.COMMAND), echo
+    caption_handler = MessageHandler(
+        filters.AUDIO & filters.ChatType.CHANNEL & (~filters.COMMAND), replace_caption
     )
 
-    application.add_handler(echo_handler)
+    application.add_handler(caption_handler)
 
-    application.run_polling()
+    application.run_webhook(
+        listen=os.getenv("WEBHOOK_HOST", "127.0.0.1"),
+        port=os.getenv("WEBHOOK_PORT", 80),
+        webhook_url=os.getenv("WEBHOOK_URL"),
+        secret_token=os.getenv("WEBHOOK_SECRET_TOKEN", None),
+        allowed_updates=["channel_post"],
+    )
