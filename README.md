@@ -1,2 +1,2 @@
 # griefstruck
-My telegram music channel robot
+A bot for my telegram music channel: https://t.me/grief_struck
