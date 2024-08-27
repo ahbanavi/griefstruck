@@ -14,8 +14,7 @@ logging.basicConfig(
 
 async def replace_caption(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message_text = update.channel_post.caption
-    if not message_text:
-        logging.warning("No caption found in the message")
+    if not update.channel_post.audio:
         return
 
     # if message name contains @motreb_downloader_bot, replace it with username
@@ -31,8 +30,10 @@ async def replace_caption(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # remove the line that starts with #pl_
         message_text = re.sub(r"(^|\n)#pl_.*\n", "\n", message_text)
     else:
-        # just replace everything with id
-        message_text = "🆔 @" + update.effective_chat.username
+        message_text = "🧑‍🎤 #ar_" + update.channel_post.audio.performer
+        message_text += "\n🎵 #tr_" + update.channel_post.audio.title
+
+        message_text += "\n\n🆔 @" + update.effective_chat.username
 
     await context.bot.edit_message_caption(
         chat_id=update.effective_chat.id,
