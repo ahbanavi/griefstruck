@@ -6,7 +6,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filte
 
 
 def create_hashtag(text):
-    return text.strip().replace(" ", "")
+    return re.sub(r"\W|_", "", text)
 
 
 async def replace_caption(update: Update, context: ContextTypes.DEFAULT_TYPE):
