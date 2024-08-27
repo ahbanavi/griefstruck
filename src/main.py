@@ -12,10 +12,12 @@ logging.basicConfig(
 )
 
 
+def create_hashtag(text):
+    return text.strip().replace(" ", "_")
+
+
 async def replace_caption(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    message_text = update.channel_post.caption
-    if not update.channel_post.audio:
-        return
+    message_text = update.channel_post.caption or ""
 
     # if message name contains @motreb_downloader_bot, replace it with username
     if "@motreb_downloader_bot" in message_text:
@@ -30,10 +32,16 @@ async def replace_caption(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # remove the line that starts with #pl_
         message_text = re.sub(r"(^|\n)#pl_.*\n", "\n", message_text)
     else:
-        message_text = "🧑‍🎤 #ar_" + update.channel_post.audio.performer
-        message_text += "\n🎵 #tr_" + update.channel_post.audio.title
+        message = []
+        if update.channel_post.audio.performer:
+            message.append("🧑‍🎤 #ar_" + create_hashtag(update.channel_post.audio.performer))
 
-        message_text += "\n\n🆔 @" + update.effective_chat.username
+        if update.channel_post.audio.title:
+            message.append("🎵 #tr_" + create_hashtag(update.channel_post.audio.title))
+
+        message.append("\n🆔 @" + update.effective_chat.username)
+
+        message_text = "\n".join(message)
 
     await context.bot.edit_message_caption(
         chat_id=update.effective_chat.id,
